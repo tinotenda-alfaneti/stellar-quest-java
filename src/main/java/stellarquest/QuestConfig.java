@@ -6,7 +6,7 @@ import org.stellar.sdk.Network;
 
 @Component
 public final class QuestConfig {
-    @Value("${QUEST_SECRET:}")
+    @Value("${QUEST_SECRET:SDCES5YOTGGWYDUY36FA6GAX4FM63ZKDGIOSXHZB7SYGMLNWQV4PYE4V}")
     private String questSecret;
 
     @Value("${HORIZON_URL:https://horizon-testnet.stellar.org}")
@@ -21,6 +21,9 @@ public final class QuestConfig {
     @Value("${STARTING_BALANCE:1000}")
     private String startingBalance;
 
+    @Value("${PAYMENT_AMOUNT:100}")
+    private String paymentAmount;
+
     @Value("${BASE_FEE:100}")
     private int baseFee;
 
@@ -29,6 +32,9 @@ public final class QuestConfig {
 
     @Value("${DESTINATION_PUBLIC_KEY:}")
     private String destinationPublicKey;
+
+    @Value("${PAYMENT_DESTINATION_PUBLIC_KEY:}")
+    private String paymentDestinationPublicKey;
 
     private static Network networkFromName(String name) {
         if (name == null) {
@@ -61,6 +67,10 @@ public final class QuestConfig {
         return startingBalance;
     }
 
+    public String paymentAmount() {
+        return paymentAmount;
+    }
+
     public int baseFee() {
         return baseFee;
     }
@@ -71,5 +81,9 @@ public final class QuestConfig {
 
     public String destinationPublicKey() {
         return destinationPublicKey;
+    }
+
+    public String paymentDestinationPublicKey() {
+        return paymentDestinationPublicKey;
     }
 }
