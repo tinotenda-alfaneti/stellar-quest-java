@@ -2,6 +2,7 @@ package stellarquest;
 
 import stellarquest.quests.CreateAccountQuest;
 import stellarquest.quests.PaymentQuest;
+import stellarquest.quests.TrustlineQuest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +25,7 @@ public class App {
             QuestConfig config,
             CreateAccountQuest createAccountQuest,
             PaymentQuest paymentQuest,
+            TrustlineQuest trustlineQuest,
             StellarQuestClient client
     ) {
         return args -> {
@@ -63,6 +65,12 @@ public class App {
                 return;
             }
 
+            if ("trustline".equals(command)) {
+                requireQuestSecret(config);
+                trustlineQuest.run(verbose);
+                return;
+            }
+
             System.err.println("Unknown command: " + command);
             printUsage();
         };
@@ -81,6 +89,7 @@ public class App {
         System.out.println("\nCommands:");
         System.out.println("  create-account   Create and fund a new account from QUEST_SECRET");
         System.out.println("  payment          Send a native XLM payment from QUEST_SECRET");
+        System.out.println("  trustline        Create a trustline from QUEST_SECRET to an issuer");
         System.out.println("  fund [ACCOUNT]   Fund ACCOUNT via friendbot (defaults to QUEST_SECRET)");
         System.out.println("\nOptions:");
         System.out.println("  -v, --verbose    Print account balances before and after");
@@ -91,9 +100,12 @@ public class App {
         System.out.println("  NETWORK               testnet (default) | public");
         System.out.println("  STARTING_BALANCE      Default: 1000");
         System.out.println("  PAYMENT_AMOUNT        Default: 100");
+        System.out.println("  ASSET_CODE            Default: SANTA");
+        System.out.println("  TRUST_LIMIT           Default: 100");
         System.out.println("  BASE_FEE              Default: 100");
         System.out.println("  TIMEOUT_SECONDS       Default: 30");
         System.out.println("  DESTINATION_PUBLIC_KEY Optional override destination account");
         System.out.println("  PAYMENT_DESTINATION_PUBLIC_KEY Optional override payment destination");
+        System.out.println("  ISSUER_PUBLIC_KEY     Optional override issuer account");
     }
 }

@@ -74,7 +74,7 @@ public final class PaymentQuest {
         System.out.println("Hash: " + response.getHash());
         System.out.println("Destination Public Key: " + destination);
         if (generatedDestination) {
-            System.out.println("Destination Secret Key: " + destinationKeyPair.getSecretSeed());
+            System.out.println("Destination Secret Key: " + new String(destinationKeyPair.getSecretSeed()));
         }
         if (verbose) {
             AccountResponse updatedSource = client.loadAccount(questKeyPair.getAccountId());

@@ -59,7 +59,7 @@ public final class CreateAccountQuest {
         System.out.println("Hash: " + response.getHash());
         System.out.println("Destination Public Key: " + destination);
         if (config.destinationPublicKey() == null || config.destinationPublicKey().isBlank()) {
-            System.out.println("Destination Secret Key: " + newKeyPair.getSecretSeed());
+            System.out.println("Destination Secret Key: " + new String(newKeyPair.getSecretSeed()));
         }
         if (verbose) {
             AccountResponse updatedSource = client.loadAccount(questKeyPair.getAccountId());

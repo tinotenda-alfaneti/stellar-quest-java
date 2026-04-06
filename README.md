@@ -44,6 +44,12 @@ java -jar target/stellar-quest-java-1.0.0.jar create-account
 java -jar target/stellar-quest-java-1.0.0.jar payment
 ```
 
+5) Create a trustline from your quest account:
+
+```bash
+java -jar target/stellar-quest-java-1.0.0.jar trustline
+```
+
 Add `--verbose` (or `-v`) to print balances before and after:
 
 ```bash
@@ -65,10 +71,13 @@ java -jar target/stellar-quest-java-1.0.0.jar fund G...
 - `NETWORK` (`testnet` default, or `public`)
 - `STARTING_BALANCE` (default: `1000`)
 - `PAYMENT_AMOUNT` (default: `100`)
+- `ASSET_CODE` (default: `SANTA`)
+- `TRUST_LIMIT` (default: `100`)
 - `BASE_FEE` (default: `100`)
 - `TIMEOUT_SECONDS` (default: `30`)
 - `DESTINATION_PUBLIC_KEY` (optional override destination account)
 - `PAYMENT_DESTINATION_PUBLIC_KEY` (optional override payment destination)
+- `ISSUER_PUBLIC_KEY` (optional override issuer account)
 
 ## Future quests
 

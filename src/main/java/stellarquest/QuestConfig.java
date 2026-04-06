@@ -24,6 +24,12 @@ public final class QuestConfig {
     @Value("${PAYMENT_AMOUNT:100}")
     private String paymentAmount;
 
+    @Value("${ASSET_CODE:SANTA}")
+    private String assetCode;
+
+    @Value("${TRUST_LIMIT:100}")
+    private String trustLimit;
+
     @Value("${BASE_FEE:100}")
     private int baseFee;
 
@@ -35,6 +41,9 @@ public final class QuestConfig {
 
     @Value("${PAYMENT_DESTINATION_PUBLIC_KEY:}")
     private String paymentDestinationPublicKey;
+
+    @Value("${ISSUER_PUBLIC_KEY:}")
+    private String issuerPublicKey;
 
     private static Network networkFromName(String name) {
         if (name == null) {
@@ -71,6 +80,14 @@ public final class QuestConfig {
         return paymentAmount;
     }
 
+    public String assetCode() {
+        return assetCode;
+    }
+
+    public String trustLimit() {
+        return trustLimit;
+    }
+
     public int baseFee() {
         return baseFee;
     }
@@ -85,5 +102,9 @@ public final class QuestConfig {
 
     public String paymentDestinationPublicKey() {
         return paymentDestinationPublicKey;
+    }
+
+    public String issuerPublicKey() {
+        return issuerPublicKey;
     }
 }
