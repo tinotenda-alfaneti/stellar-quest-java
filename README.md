@@ -44,6 +44,13 @@ java -jar target/stellar-quest-java-1.0.0.jar create-account
 java -jar target/stellar-quest-java-1.0.0.jar payment
 ```
 
+Add `--verbose` (or `-v`) to print balances before and after:
+
+```bash
+java -jar target/stellar-quest-java-1.0.0.jar create-account --verbose
+java -jar target/stellar-quest-java-1.0.0.jar payment -v
+```
+
 4) (Optional) Fund any account via friendbot:
 
 ```bash

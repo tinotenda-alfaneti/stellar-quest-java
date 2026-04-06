@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.stellar.sdk.Network;
 import org.stellar.sdk.Server;
 import org.stellar.sdk.Transaction;
-import org.stellar.sdk.TransactionBuilderAccount;
+import org.stellar.sdk.responses.AccountResponse;
 import org.stellar.sdk.responses.TransactionResponse;
 
 @Component
@@ -33,9 +33,9 @@ public final class StellarQuestClient {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public TransactionBuilderAccount loadAccount(String accountId) throws IOException {
+    public AccountResponse loadAccount(String accountId) throws IOException {
         try {
-            return server.loadAccount(accountId);
+            return server.accounts().account(accountId);
         } catch (Exception ex) {
             if (ex instanceof IOException) {
                 throw (IOException) ex;

@@ -9,8 +9,8 @@ import org.stellar.sdk.KeyPair;
 import org.stellar.sdk.Network;
 import org.stellar.sdk.Transaction;
 import org.stellar.sdk.TransactionBuilder;
-import org.stellar.sdk.TransactionBuilderAccount;
 import org.stellar.sdk.operations.PaymentOperation;
+import org.stellar.sdk.responses.AccountResponse;
 import org.stellar.sdk.responses.TransactionResponse;
 
 import stellarquest.QuestConfig;
@@ -26,7 +26,7 @@ public final class PaymentQuest {
         this.config = config;
     }
 
-    public void run() throws IOException {
+    public void run(boolean verbose) throws IOException {
         String secret = config.questSecret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("QUEST_SECRET is required.");
@@ -46,7 +46,13 @@ public final class PaymentQuest {
             client.fundWithFriendbot(destination);
         }
 
-        TransactionBuilderAccount questAccount = client.loadAccount(questKeyPair.getAccountId());
+        AccountResponse questAccount = client.loadAccount(questKeyPair.getAccountId());
+        if (verbose) {
+            System.out.println("Source Account: " + questAccount.getAccountId());
+            printBalances("Source Balances (before)", questAccount);
+            AccountResponse destinationAccount = client.loadAccount(destination);
+            printBalances("Destination Balances (before)", destinationAccount);
+        }
 
         Transaction transaction = new TransactionBuilder(questAccount, client.network())
                 .setBaseFee(client.baseFee())
@@ -69,6 +75,26 @@ public final class PaymentQuest {
         System.out.println("Destination Public Key: " + destination);
         if (generatedDestination) {
             System.out.println("Destination Secret Key: " + destinationKeyPair.getSecretSeed());
+        }
+        if (verbose) {
+            AccountResponse updatedSource = client.loadAccount(questKeyPair.getAccountId());
+            AccountResponse updatedDestination = client.loadAccount(destination);
+            printBalances("Source Balances (after)", updatedSource);
+            printBalances("Destination Balances (after)", updatedDestination);
+        }
+    }
+
+    private static void printBalances(String label, AccountResponse account) {
+        System.out.println(label + ":");
+        if (account.getBalances() == null || account.getBalances().isEmpty()) {
+            System.out.println("  (none)");
+            return;
+        }
+        for (AccountResponse.Balance balance : account.getBalances()) {
+            String asset = "native".equals(balance.getAssetType())
+                    ? "XLM"
+                    : balance.getAssetCode() + ":" + balance.getAssetIssuer();
+            System.out.println("  " + asset + " = " + balance.getBalance());
         }
     }
 }

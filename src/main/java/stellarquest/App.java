@@ -8,6 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.stellar.sdk.KeyPair;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @SpringBootApplication
 public class App {
 
@@ -23,15 +27,18 @@ public class App {
             StellarQuestClient client
     ) {
         return args -> {
-            if (args.length > 0 && ("-h".equals(args[0]) || "--help".equals(args[0]) || "help".equals(args[0]))) {
+            List<String> argList = new ArrayList<>(Arrays.asList(args));
+            boolean verbose = argList.remove("--verbose") || argList.remove("-v");
+
+            if (!argList.isEmpty() && ("-h".equals(argList.get(0)) || "--help".equals(argList.get(0)) || "help".equals(argList.get(0)))) {
                 printUsage();
                 return;
             }
 
-            String command = args.length == 0 ? "create-account" : args[0];
+            String command = argList.isEmpty() ? "create-account" : argList.get(0);
 
             if ("fund".equals(command)) {
-                String accountId = args.length > 1 ? args[1] : null;
+                String accountId = argList.size() > 1 ? argList.get(1) : null;
                 if (accountId == null || accountId.isBlank()) {
                     String secret = requireQuestSecret(config);
                     KeyPair questKeyPair = KeyPair.fromSecretSeed(secret);
@@ -46,13 +53,13 @@ public class App {
 
             if ("create-account".equals(command)) {
                 requireQuestSecret(config);
-                createAccountQuest.run();
+                createAccountQuest.run(verbose);
                 return;
             }
 
             if ("payment".equals(command)) {
                 requireQuestSecret(config);
-                paymentQuest.run();
+                paymentQuest.run(verbose);
                 return;
             }
 
@@ -75,6 +82,8 @@ public class App {
         System.out.println("  create-account   Create and fund a new account from QUEST_SECRET");
         System.out.println("  payment          Send a native XLM payment from QUEST_SECRET");
         System.out.println("  fund [ACCOUNT]   Fund ACCOUNT via friendbot (defaults to QUEST_SECRET)");
+        System.out.println("\nOptions:");
+        System.out.println("  -v, --verbose    Print account balances before and after");
         System.out.println("\nEnvironment:");
         System.out.println("  QUEST_SECRET          Quest account secret seed (required for create-account)");
         System.out.println("  HORIZON_URL           Default: https://horizon-testnet.stellar.org");

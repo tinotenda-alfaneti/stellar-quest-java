@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import org.stellar.sdk.KeyPair;
 import org.stellar.sdk.Transaction;
 import org.stellar.sdk.TransactionBuilder;
-import org.stellar.sdk.TransactionBuilderAccount;
 import org.stellar.sdk.responses.TransactionResponse;
+import org.stellar.sdk.responses.AccountResponse;
 import org.stellar.sdk.operations.CreateAccountOperation;
 
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public final class CreateAccountQuest {
         this.config = config;
     }
 
-    public void run() throws IOException {
+    public void run(boolean verbose) throws IOException {
         KeyPair questKeyPair = KeyPair.fromSecretSeed(config.questSecret());
         KeyPair newKeyPair = KeyPair.random();
 
@@ -34,7 +34,11 @@ public final class CreateAccountQuest {
             destination = newKeyPair.getAccountId();
         }
 
-        TransactionBuilderAccount questAccount = client.loadAccount(questKeyPair.getAccountId());
+        AccountResponse questAccount = client.loadAccount(questKeyPair.getAccountId());
+        if (verbose) {
+            System.out.println("Source Account: " + questAccount.getAccountId());
+            printBalances("Source Balances (before)", questAccount);
+        }
 
         Transaction transaction = new TransactionBuilder(questAccount, client.network())
                 .setBaseFee(client.baseFee())
@@ -56,6 +60,26 @@ public final class CreateAccountQuest {
         System.out.println("Destination Public Key: " + destination);
         if (config.destinationPublicKey() == null || config.destinationPublicKey().isBlank()) {
             System.out.println("Destination Secret Key: " + newKeyPair.getSecretSeed());
+        }
+        if (verbose) {
+            AccountResponse updatedSource = client.loadAccount(questKeyPair.getAccountId());
+            printBalances("Source Balances (after)", updatedSource);
+            AccountResponse destinationAccount = client.loadAccount(destination);
+            printBalances("Destination Balances (after)", destinationAccount);
+        }
+    }
+
+    private static void printBalances(String label, AccountResponse account) {
+        System.out.println(label + ":");
+        if (account.getBalances() == null || account.getBalances().isEmpty()) {
+            System.out.println("  (none)");
+            return;
+        }
+        for (AccountResponse.Balance balance : account.getBalances()) {
+            String asset = "native".equals(balance.getAssetType())
+                    ? "XLM"
+                    : balance.getAssetCode() + ":" + balance.getAssetIssuer();
+            System.out.println("  " + asset + " = " + balance.getBalance());
         }
     }
 }
