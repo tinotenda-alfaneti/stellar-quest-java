@@ -26,6 +26,7 @@ public final class CreateAccountQuest {
     }
 
     public void run(boolean verbose) throws IOException {
+        // Flow: quest account pays the starting balance to create a new account.
         KeyPair questKeyPair = KeyPair.fromSecretSeed(config.questSecret());
         KeyPair newKeyPair = KeyPair.random();
 

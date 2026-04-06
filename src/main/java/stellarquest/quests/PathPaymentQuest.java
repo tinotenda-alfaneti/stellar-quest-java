@@ -33,6 +33,7 @@ public final class PathPaymentQuest {
     }
 
     public void run(boolean verbose) throws IOException {
+        // Flow: set up issuer/distributor/destination, create offers, then execute strict-send path payment.
         String secret = config.questSecret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("QUEST_SECRET is required.");

@@ -29,6 +29,7 @@ public final class TrustlineQuest {
     }
 
     public void run(boolean verbose) throws IOException {
+        // Flow: quest account creates a trustline to a custom asset issued by another account.
         String secret = config.questSecret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("QUEST_SECRET is required.");

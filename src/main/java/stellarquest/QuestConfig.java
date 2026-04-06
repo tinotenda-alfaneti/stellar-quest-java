@@ -6,9 +6,11 @@ import org.stellar.sdk.Network;
 
 @Component
 public final class QuestConfig {
+    // Quest account (payer) secret used across quests.
     @Value("${QUEST_SECRET:}")
     private String questSecret;
 
+    // Network endpoints and selection.
     @Value("${HORIZON_URL:https://horizon-testnet.stellar.org}")
     private String horizonUrl;
 
@@ -18,24 +20,29 @@ public final class QuestConfig {
     @Value("${NETWORK:testnet}")
     private String networkName;
 
+    // Create-account quest options.
     @Value("${STARTING_BALANCE:1000}")
     private String startingBalance;
 
+    // Payment quest options.
     @Value("${PAYMENT_AMOUNT:100}")
     private String paymentAmount;
 
+    // Trustline quest options.
     @Value("${ASSET_CODE:SANTA}")
     private String assetCode;
 
     @Value("${TRUST_LIMIT:100}")
     private String trustLimit;
 
+    // Fees and timeouts.
     @Value("${BASE_FEE:100}")
     private int baseFee;
 
     @Value("${TIMEOUT_SECONDS:30}")
     private int timeoutSeconds;
 
+    // Optional destination overrides.
     @Value("${DESTINATION_PUBLIC_KEY:}")
     private String destinationPublicKey;
 
@@ -45,6 +52,7 @@ public final class QuestConfig {
     @Value("${ISSUER_PUBLIC_KEY:}")
     private String issuerPublicKey;
 
+    // DEX offer quest options.
     @Value("${OFFER_TYPE:buy}")
     private String offerType;
 
@@ -69,6 +77,7 @@ public final class QuestConfig {
     @Value("${OFFER_TRUST_LIMIT:}")
     private String offerTrustLimit;
 
+    // Path payment quest options.
     @Value("${PATH_ASSET_CODE:PATH}")
     private String pathAssetCode;
 

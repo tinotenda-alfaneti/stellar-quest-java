@@ -34,6 +34,7 @@ public final class ManageOfferQuest {
     }
 
     public void run(boolean verbose) throws IOException {
+        // Flow: trust the counter-asset, then create a buy/sell/passive offer on the DEX.
         String secret = config.questSecret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("QUEST_SECRET is required.");

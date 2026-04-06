@@ -35,6 +35,7 @@ public final class StellarQuestClient {
 
     public AccountResponse loadAccount(String accountId) throws IOException {
         try {
+            // AccountResponse is also a TransactionBuilderAccount and includes balances for verbose output.
             return server.accounts().account(accountId);
         } catch (Exception ex) {
             if (ex instanceof IOException) {
@@ -65,6 +66,7 @@ public final class StellarQuestClient {
             int status = response.statusCode();
             if (status < 200 || status >= 300) {
                 String body = response.body();
+                // Friendbot returns 400 if the account is already funded; treat as non-fatal.
                 if (status == 400 && body != null && body.contains("account already funded")) {
                     return body;
                 }

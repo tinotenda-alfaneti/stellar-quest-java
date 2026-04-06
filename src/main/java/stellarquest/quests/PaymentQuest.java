@@ -27,6 +27,7 @@ public final class PaymentQuest {
     }
 
     public void run(boolean verbose) throws IOException {
+        // Flow: quest account sends native XLM to a destination account.
         String secret = config.questSecret();
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("QUEST_SECRET is required.");

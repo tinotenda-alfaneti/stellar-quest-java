@@ -33,6 +33,7 @@ public class App {
             StellarQuestClient client
     ) {
         return args -> {
+            // Global CLI option: --verbose / -v for before/after balances and extra context.
             List<String> argList = new ArrayList<>(Arrays.asList(args));
             boolean verbose = argList.remove("--verbose") || argList.remove("-v");
 
@@ -44,6 +45,7 @@ public class App {
             String command = argList.isEmpty() ? "create-account" : argList.get(0);
 
             if ("fund".equals(command)) {
+                // Utility: fund an account via friendbot (testnet only).
                 String accountId = argList.size() > 1 ? argList.get(1) : null;
                 if (accountId == null || accountId.isBlank()) {
                     String secret = requireQuestSecret(config);
@@ -58,30 +60,35 @@ public class App {
             }
 
             if ("create-account".equals(command)) {
+                // Quest 1: create an account from the quest account.
                 requireQuestSecret(config);
                 createAccountQuest.run(verbose);
                 return;
             }
 
             if ("payment".equals(command)) {
+                // Quest 2: send native XLM from the quest account.
                 requireQuestSecret(config);
                 paymentQuest.run(verbose);
                 return;
             }
 
             if ("trustline".equals(command)) {
+                // Quest 3: establish a trustline for a custom asset.
                 requireQuestSecret(config);
                 trustlineQuest.run(verbose);
                 return;
             }
 
             if ("offer".equals(command)) {
+                // Quest 4: create a DEX offer (buy/sell/passive).
                 requireQuestSecret(config);
                 manageOfferQuest.run(verbose);
                 return;
             }
 
             if ("path-payment".equals(command)) {
+                // Quest 5: execute a strict-send path payment with offers.
                 requireQuestSecret(config);
                 pathPaymentQuest.run(verbose);
                 return;
