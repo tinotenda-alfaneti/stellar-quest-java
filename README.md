@@ -50,6 +50,18 @@ java -jar target/stellar-quest-java-1.0.0.jar payment
 java -jar target/stellar-quest-java-1.0.0.jar trustline
 ```
 
+6) Create an offer (buy/sell/passive):
+
+```bash
+java -jar target/stellar-quest-java-1.0.0.jar offer
+```
+
+7) Execute a path payment (strict send):
+
+```bash
+java -jar target/stellar-quest-java-1.0.0.jar path-payment
+```
+
 Add `--verbose` (or `-v`) to print balances before and after:
 
 ```bash
@@ -78,6 +90,19 @@ java -jar target/stellar-quest-java-1.0.0.jar fund G...
 - `DESTINATION_PUBLIC_KEY` (optional override destination account)
 - `PAYMENT_DESTINATION_PUBLIC_KEY` (optional override payment destination)
 - `ISSUER_PUBLIC_KEY` (optional override issuer account)
+- `OFFER_TYPE` (default: `sell`, options: `buy|sell|passive`)
+- `OFFER_ASSET_CODE` (default: `USDC`)
+- `OFFER_ASSET_ISSUER` (default: `GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`)
+- `OFFER_PRICE` (default: `0.1`)
+- `OFFER_AMOUNT` (default: `1000`, sell/passive amount)
+- `OFFER_BUY_AMOUNT` (default: `100`, buy amount)
+- `OFFER_ID` (default: `0`, manage buy/sell only)
+- `OFFER_TRUST_LIMIT` (optional trust limit for the offer asset)
+- `PATH_ASSET_CODE` (default: `PATH`)
+- `PATH_SEND_AMOUNT` (default: `1000`)
+- `PATH_DEST_MIN` (default: `1000`)
+- `PATH_DEST_AMOUNT` (default: `450`)
+- `PATH_SEND_MAX` (default: `450`)
 
 ## Future quests
 

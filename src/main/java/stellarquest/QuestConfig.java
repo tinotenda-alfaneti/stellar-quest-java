@@ -45,6 +45,45 @@ public final class QuestConfig {
     @Value("${ISSUER_PUBLIC_KEY:}")
     private String issuerPublicKey;
 
+    @Value("${OFFER_TYPE:buy}")
+    private String offerType;
+
+    @Value("${OFFER_ASSET_CODE:USDC}")
+    private String offerAssetCode;
+
+    @Value("${OFFER_ASSET_ISSUER:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5}")
+    private String offerAssetIssuer;
+
+    @Value("${OFFER_PRICE:0.1}")
+    private String offerPrice;
+
+    @Value("${OFFER_AMOUNT:1000}")
+    private String offerAmount;
+
+    @Value("${OFFER_BUY_AMOUNT:100}")
+    private String offerBuyAmount;
+
+    @Value("${OFFER_ID:0}")
+    private long offerId;
+
+    @Value("${OFFER_TRUST_LIMIT:}")
+    private String offerTrustLimit;
+
+    @Value("${PATH_ASSET_CODE:PATH}")
+    private String pathAssetCode;
+
+    @Value("${PATH_SEND_AMOUNT:1000}")
+    private String pathSendAmount;
+
+    @Value("${PATH_DEST_MIN:1000}")
+    private String pathDestMin;
+
+    @Value("${PATH_DEST_AMOUNT:450}")
+    private String pathDestAmount;
+
+    @Value("${PATH_SEND_MAX:450}")
+    private String pathSendMax;
+
     private static Network networkFromName(String name) {
         if (name == null) {
             return Network.TESTNET;
@@ -106,5 +145,57 @@ public final class QuestConfig {
 
     public String issuerPublicKey() {
         return issuerPublicKey;
+    }
+
+    public String offerType() {
+        return offerType;
+    }
+
+    public String offerAssetCode() {
+        return offerAssetCode;
+    }
+
+    public String offerAssetIssuer() {
+        return offerAssetIssuer;
+    }
+
+    public String offerPrice() {
+        return offerPrice;
+    }
+
+    public String offerAmount() {
+        return offerAmount;
+    }
+
+    public String offerBuyAmount() {
+        return offerBuyAmount;
+    }
+
+    public long offerId() {
+        return offerId;
+    }
+
+    public String offerTrustLimit() {
+        return offerTrustLimit;
+    }
+
+    public String pathAssetCode() {
+        return pathAssetCode;
+    }
+
+    public String pathSendAmount() {
+        return pathSendAmount;
+    }
+
+    public String pathDestMin() {
+        return pathDestMin;
+    }
+
+    public String pathDestAmount() {
+        return pathDestAmount;
+    }
+
+    public String pathSendMax() {
+        return pathSendMax;
     }
 }

@@ -64,7 +64,11 @@ public final class StellarQuestClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             int status = response.statusCode();
             if (status < 200 || status >= 300) {
-                throw new IOException("Friendbot request failed with status " + status + ": " + response.body());
+                String body = response.body();
+                if (status == 400 && body != null && body.contains("account already funded")) {
+                    return body;
+                }
+                throw new IOException("Friendbot request failed with status " + status + ": " + body);
             }
             return response.body();
         } catch (InterruptedException ex) {

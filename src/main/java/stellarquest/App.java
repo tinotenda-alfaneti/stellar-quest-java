@@ -1,6 +1,8 @@
 package stellarquest;
 
 import stellarquest.quests.CreateAccountQuest;
+import stellarquest.quests.ManageOfferQuest;
+import stellarquest.quests.PathPaymentQuest;
 import stellarquest.quests.PaymentQuest;
 import stellarquest.quests.TrustlineQuest;
 
@@ -24,6 +26,8 @@ public class App {
     public org.springframework.boot.CommandLineRunner commandLineRunner(
             QuestConfig config,
             CreateAccountQuest createAccountQuest,
+            ManageOfferQuest manageOfferQuest,
+            PathPaymentQuest pathPaymentQuest,
             PaymentQuest paymentQuest,
             TrustlineQuest trustlineQuest,
             StellarQuestClient client
@@ -71,6 +75,18 @@ public class App {
                 return;
             }
 
+            if ("offer".equals(command)) {
+                requireQuestSecret(config);
+                manageOfferQuest.run(verbose);
+                return;
+            }
+
+            if ("path-payment".equals(command)) {
+                requireQuestSecret(config);
+                pathPaymentQuest.run(verbose);
+                return;
+            }
+
             System.err.println("Unknown command: " + command);
             printUsage();
         };
@@ -90,6 +106,8 @@ public class App {
         System.out.println("  create-account   Create and fund a new account from QUEST_SECRET");
         System.out.println("  payment          Send a native XLM payment from QUEST_SECRET");
         System.out.println("  trustline        Create a trustline from QUEST_SECRET to an issuer");
+        System.out.println("  offer            Create a buy/sell/passive offer from QUEST_SECRET");
+        System.out.println("  path-payment     Execute a strict-send path payment");
         System.out.println("  fund [ACCOUNT]   Fund ACCOUNT via friendbot (defaults to QUEST_SECRET)");
         System.out.println("\nOptions:");
         System.out.println("  -v, --verbose    Print account balances before and after");
@@ -102,6 +120,19 @@ public class App {
         System.out.println("  PAYMENT_AMOUNT        Default: 100");
         System.out.println("  ASSET_CODE            Default: SANTA");
         System.out.println("  TRUST_LIMIT           Default: 100");
+        System.out.println("  OFFER_TYPE            Default: sell (buy|sell|passive)");
+        System.out.println("  OFFER_ASSET_CODE      Default: USDC");
+        System.out.println("  OFFER_ASSET_ISSUER    Default: GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5");
+        System.out.println("  OFFER_PRICE           Default: 0.1");
+        System.out.println("  OFFER_AMOUNT          Default: 1000 (sell/passive amount)");
+        System.out.println("  OFFER_BUY_AMOUNT      Default: 100 (buy amount)");
+        System.out.println("  OFFER_ID              Default: 0 (manage buy/sell)");
+        System.out.println("  OFFER_TRUST_LIMIT     Optional trust limit for the offer asset");
+        System.out.println("  PATH_ASSET_CODE       Default: PATH");
+        System.out.println("  PATH_SEND_AMOUNT      Default: 1000");
+        System.out.println("  PATH_DEST_MIN         Default: 1000");
+        System.out.println("  PATH_DEST_AMOUNT      Default: 450");
+        System.out.println("  PATH_SEND_MAX         Default: 450");
         System.out.println("  BASE_FEE              Default: 100");
         System.out.println("  TIMEOUT_SECONDS       Default: 30");
         System.out.println("  DESTINATION_PUBLIC_KEY Optional override destination account");
