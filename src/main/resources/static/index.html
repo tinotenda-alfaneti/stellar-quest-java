@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stellar Mission Control</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="orb orb-left"></div>
+  <div class="orb orb-right"></div>
+
+  <main class="layout">
+    <header class="hero card">
+      <p class="eyebrow">Stellar Quest</p>
+      <h1>Mission Control</h1>
+      <p class="subtitle">Run transactions from a cockpit UI instead of a CLI.</p>
+      <div class="meta" id="configMeta">
+        <span>Loading network config...</span>
+      </div>
+    </header>
+
+    <section class="panel-grid">
+      <article class="card">
+        <h2>Create Account</h2>
+        <form id="createAccountForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Destination Public Key (leave blank to generate)
+            <input type="text" name="destinationPublicKey" placeholder="G...">
+          </label>
+          <label>
+            Starting Balance
+            <input type="text" name="startingBalance" value="1000">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Launch Create Account</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Payment</h2>
+        <form id="paymentForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Destination Public Key (leave blank to generate)
+            <input type="text" name="destinationPublicKey" placeholder="G...">
+          </label>
+          <label>
+            Payment Amount (XLM)
+            <input type="text" name="paymentAmount" value="100">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="autoFundDestination" checked>
+            Auto-fund generated destination on testnet
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Send Payment</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Trustline</h2>
+        <form id="trustlineForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Issuer Public Key (leave blank to generate)
+            <input type="text" name="issuerPublicKey" placeholder="G...">
+          </label>
+          <label>
+            Asset Code
+            <input type="text" name="assetCode" value="SANTA">
+          </label>
+          <label>
+            Trust Limit
+            <input type="text" name="trustLimit" value="100">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="autoFundIssuer" checked>
+            Auto-fund generated issuer on testnet
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Create Trustline</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Offer</h2>
+        <form id="offerForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Offer Type
+            <select name="offerType">
+              <option value="buy">buy</option>
+              <option value="sell" selected>sell</option>
+              <option value="passive">passive</option>
+            </select>
+          </label>
+          <label>
+            Offer Asset Code
+            <input type="text" name="offerAssetCode" value="USDC">
+          </label>
+          <label>
+            Offer Asset Issuer
+            <input type="text" name="offerAssetIssuer" placeholder="G...">
+          </label>
+          <label>
+            Offer Price
+            <input type="text" name="offerPrice" value="0.1">
+          </label>
+          <label>
+            Sell/Passive Amount
+            <input type="text" name="offerAmount" value="1000">
+          </label>
+          <label>
+            Buy Amount (for buy type)
+            <input type="text" name="offerBuyAmount" value="100">
+          </label>
+          <label>
+            Offer ID (manage buy/sell only)
+            <input type="text" name="offerId" value="0">
+          </label>
+          <label>
+            Offer Trust Limit (optional)
+            <input type="text" name="offerTrustLimit" placeholder="922337203685.4775807">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Create Offer</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Path Payment</h2>
+        <form id="pathPaymentForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Path Asset Code
+            <input type="text" name="pathAssetCode" value="PATH">
+          </label>
+          <label>
+            Send Amount (XLM)
+            <input type="text" name="pathSendAmount" value="1000">
+          </label>
+          <label>
+            Destination Min
+            <input type="text" name="pathDestMin" value="1000">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="autoFundAccounts" checked>
+            Auto-fund generated accounts on testnet
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Run Path Payment</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <h2>Friendbot Fund</h2>
+        <form id="fundForm" class="stacked-form">
+          <label>
+            Account ID (leave blank to use quest account)
+            <input type="text" name="accountId" placeholder="G...">
+          </label>
+          <label>
+            Quest Secret (only needed if Account ID blank and no `QUEST_SECRET`)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <button type="submit">Fund Account</button>
+        </form>
+      </article>
+    </section>
+
+    <section class="card console">
+      <div class="console-head">
+        <h2>Console</h2>
+        <button id="clearConsole" type="button" class="ghost">Clear</button>
+      </div>
+      <pre id="consoleOutput">Waiting for action...</pre>
+    </section>
+  </main>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
