@@ -72,6 +72,40 @@
       </article>
 
       <article class="card">
+        <h2>Manage Data</h2>
+        <form id="manageDataForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Data Name (max 64 bytes)
+            <input type="text" name="dataName" value="Hello">
+          </label>
+          <label>
+            Data Value (max 64 bytes)
+            <input type="text" name="dataValue" value="World">
+          </label>
+          <label>
+            Value Encoding
+            <select name="valueEncoding">
+              <option value="utf8" selected>utf8</option>
+              <option value="base64">base64</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="deleteEntry">
+            Delete data entry (sends null value)
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances and data entries
+          </label>
+          <button type="submit">Run Manage Data</button>
+        </form>
+      </article>
+
+      <article class="card">
         <h2>Account Merge</h2>
         <form id="accountMergeForm" class="stacked-form">
           <label>

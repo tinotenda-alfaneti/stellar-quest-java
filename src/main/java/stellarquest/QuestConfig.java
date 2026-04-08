@@ -28,6 +28,16 @@ public final class QuestConfig {
     @Value("${PAYMENT_AMOUNT:100}")
     private String paymentAmount;
 
+    // Manage-data quest options.
+    @Value("${MANAGE_DATA_NAME:Hello}")
+    private String manageDataName;
+
+    @Value("${MANAGE_DATA_VALUE:World}")
+    private String manageDataValue;
+
+    @Value("${MANAGE_DATA_ENCODING:utf8}")
+    private String manageDataEncoding;
+
     // Trustline quest options.
     @Value("${ASSET_CODE:SANTA}")
     private String assetCode;
@@ -129,6 +139,18 @@ public final class QuestConfig {
 
     public String paymentAmount() {
         return paymentAmount;
+    }
+
+    public String manageDataName() {
+        return manageDataName;
+    }
+
+    public String manageDataValue() {
+        return manageDataValue;
+    }
+
+    public String manageDataEncoding() {
+        return manageDataEncoding;
     }
 
     public String assetCode() {

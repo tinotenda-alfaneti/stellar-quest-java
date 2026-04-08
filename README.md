@@ -34,6 +34,7 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 
 - Create account
 - Send payment
+- Manage data (set or delete account data entries)
 - Merge account (delete source account and transfer all XLM)
 - Create trustline
 - Create offer (buy/sell/passive)
@@ -47,6 +48,7 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 - `POST /api/transactions/fund`
 - `POST /api/transactions/create-account`
 - `POST /api/transactions/payment`
+- `POST /api/transactions/manage-data`
 - `POST /api/transactions/account-merge`
 - `POST /api/transactions/trustline`
 - `POST /api/transactions/offer`
@@ -70,6 +72,9 @@ All endpoints return a JSON envelope:
 - `NETWORK` (`testnet` default, or `public`)
 - `STARTING_BALANCE`
 - `PAYMENT_AMOUNT`
+- `MANAGE_DATA_NAME` (default: `Hello`)
+- `MANAGE_DATA_VALUE` (default: `World`)
+- `MANAGE_DATA_ENCODING` (default: `utf8`, options: `utf8|base64`)
 - `ASSET_CODE`
 - `TRUST_LIMIT`
 - `BASE_FEE`

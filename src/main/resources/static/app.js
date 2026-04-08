@@ -108,6 +108,9 @@ async function loadConfig() {
     const defaults = data.defaults || {};
     const createBalance = document.querySelector('#createAccountForm input[name="startingBalance"]');
     const paymentAmount = document.querySelector('#paymentForm input[name="paymentAmount"]');
+    const manageDataName = document.querySelector('#manageDataForm input[name="dataName"]');
+    const manageDataValue = document.querySelector('#manageDataForm input[name="dataValue"]');
+    const manageDataEncoding = document.querySelector('#manageDataForm select[name="valueEncoding"]');
     const mergeDestination = document.querySelector('#accountMergeForm input[name="destinationPublicKey"]');
     const trustAsset = document.querySelector('#trustlineForm input[name="assetCode"]');
     const trustLimit = document.querySelector('#trustlineForm input[name="trustLimit"]');
@@ -125,6 +128,9 @@ async function loadConfig() {
 
     if (createBalance && defaults.startingBalance) createBalance.value = defaults.startingBalance;
     if (paymentAmount && defaults.paymentAmount) paymentAmount.value = defaults.paymentAmount;
+    if (manageDataName && defaults.manageDataName) manageDataName.value = defaults.manageDataName;
+    if (manageDataValue && defaults.manageDataValue) manageDataValue.value = defaults.manageDataValue;
+    if (manageDataEncoding && defaults.manageDataEncoding) manageDataEncoding.value = defaults.manageDataEncoding;
     if (mergeDestination && defaults.mergeDestinationPublicKey) mergeDestination.value = defaults.mergeDestinationPublicKey;
     if (trustAsset && defaults.assetCode) trustAsset.value = defaults.assetCode;
     if (trustLimit && defaults.trustLimit) trustLimit.value = defaults.trustLimit;
@@ -151,6 +157,7 @@ clearConsoleBtn.addEventListener('click', () => {
 
 bindPostForm('createAccountForm', '/api/transactions/create-account', 'Create account transaction');
 bindPostForm('paymentForm', '/api/transactions/payment', 'Payment transaction');
+bindPostForm('manageDataForm', '/api/transactions/manage-data', 'Manage data transaction');
 bindPostForm('accountMergeForm', '/api/transactions/account-merge', 'Account merge transaction');
 bindPostForm('trustlineForm', '/api/transactions/trustline', 'Trustline transaction');
 bindPostForm('offerForm', '/api/transactions/offer', 'Offer transaction');

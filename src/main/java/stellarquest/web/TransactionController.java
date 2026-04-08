@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import stellarquest.web.dto.AccountMergeRequest;
 import stellarquest.web.dto.CreateAccountRequest;
 import stellarquest.web.dto.FundRequest;
+import stellarquest.web.dto.ManageDataRequest;
 import stellarquest.web.dto.OfferRequest;
 import stellarquest.web.dto.PathPaymentRequest;
 import stellarquest.web.dto.PaymentRequest;
@@ -56,6 +57,12 @@ public final class TransactionController {
     public ResponseEntity<Map<String, Object>> payment(@RequestBody(required = false) PaymentRequest request)
             throws IOException {
         return ok("Payment transaction submitted.", transactionService.payment(request));
+    }
+
+    @PostMapping("/transactions/manage-data")
+    public ResponseEntity<Map<String, Object>> manageData(@RequestBody(required = false) ManageDataRequest request)
+            throws IOException {
+        return ok("Manage data transaction submitted.", transactionService.manageData(request));
     }
 
     @PostMapping("/transactions/account-merge")

@@ -3,9 +3,12 @@ package stellarquest.web;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.stereotype.Service;
 import org.stellar.sdk.Asset;
@@ -23,6 +26,7 @@ import org.stellar.sdk.operations.ChangeTrustOperation;
 import org.stellar.sdk.operations.CreateAccountOperation;
 import org.stellar.sdk.operations.CreatePassiveSellOfferOperation;
 import org.stellar.sdk.operations.ManageBuyOfferOperation;
+import org.stellar.sdk.operations.ManageDataOperation;
 import org.stellar.sdk.operations.ManageSellOfferOperation;
 import org.stellar.sdk.operations.PathPaymentStrictSendOperation;
 import org.stellar.sdk.operations.PaymentOperation;
@@ -34,6 +38,7 @@ import stellarquest.StellarQuestClient;
 import stellarquest.web.dto.AccountMergeRequest;
 import stellarquest.web.dto.CreateAccountRequest;
 import stellarquest.web.dto.FundRequest;
+import stellarquest.web.dto.ManageDataRequest;
 import stellarquest.web.dto.OfferRequest;
 import stellarquest.web.dto.PathPaymentRequest;
 import stellarquest.web.dto.PaymentRequest;
@@ -223,6 +228,95 @@ public final class TransactionService {
             data.put("destinationBalancesBefore", destinationBefore);
             data.put("sourceBalancesAfter", balancesOf(client.loadAccount(sourceKey.getAccountId())));
             data.put("destinationBalancesAfter", balancesOf(client.loadAccount(destination)));
+        }
+
+        return data;
+    }
+
+    public Map<String, Object> manageData(ManageDataRequest request) throws IOException {
+        ManageDataRequest safe = request == null ? new ManageDataRequest() : request;
+
+        String secret = resolveQuestSecret(safe.getQuestSecret());
+        KeyPair sourceKey = KeyPair.fromSecretSeed(secret);
+
+        String dataName = firstNonBlank(safe.getDataName(), config.manageDataName());
+        if (isBlank(dataName)) {
+            throw new IllegalArgumentException("dataName is required.");
+        }
+        if (dataName.getBytes(StandardCharsets.UTF_8).length > 64) {
+            throw new IllegalArgumentException("dataName must be 64 bytes or fewer.");
+        }
+
+        boolean deleteEntry = boolOrDefault(safe.getDeleteEntry(), false);
+        boolean includeBalances = boolOrDefault(safe.getIncludeBalances(), true);
+        String valueEncoding = normalizeDataEncoding(firstNonBlank(safe.getValueEncoding(), config.manageDataEncoding()));
+
+        byte[] dataValueBytes = null;
+        String dataValueBase64 = null;
+        String dataValueUtf8 = null;
+
+        if (!deleteEntry) {
+            String dataValue = firstNonBlank(safe.getDataValue(), config.manageDataValue());
+            if (isBlank(dataValue)) {
+                throw new IllegalArgumentException("dataValue is required unless deleteEntry is true.");
+            }
+
+            if ("base64".equals(valueEncoding)) {
+                try {
+                    dataValueBytes = Base64.getDecoder().decode(dataValue.trim());
+                } catch (IllegalArgumentException ex) {
+                    throw new IllegalArgumentException("dataValue must be valid base64 when valueEncoding=base64.");
+                }
+            } else {
+                dataValueBytes = dataValue.getBytes(StandardCharsets.UTF_8);
+            }
+
+            if (dataValueBytes.length > 64) {
+                throw new IllegalArgumentException("dataValue must be 64 bytes or fewer.");
+            }
+
+            dataValueBase64 = Base64.getEncoder().encodeToString(dataValueBytes);
+            dataValueUtf8 = new String(dataValueBytes, StandardCharsets.UTF_8);
+        }
+
+        AccountResponse sourceAccount = client.loadAccount(sourceKey.getAccountId());
+        List<Map<String, String>> sourceBefore = null;
+        List<Map<String, String>> dataEntriesBefore = null;
+        if (includeBalances) {
+            sourceBefore = balancesOf(sourceAccount);
+            dataEntriesBefore = dataEntriesOf(sourceAccount);
+        }
+
+        Transaction transaction = new TransactionBuilder(sourceAccount, client.network())
+                .setBaseFee(client.baseFee())
+                .addOperation(ManageDataOperation.builder()
+                        .name(dataName)
+                        .value(dataValueBytes)
+                        .build())
+                .setTimeout(client.timeoutSeconds())
+                .build();
+
+        transaction.sign(sourceKey);
+        TransactionResponse tx = client.submitTransaction(transaction);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("action", "manage-data");
+        data.put("hash", tx.getHash());
+        data.put("sourceAccount", sourceKey.getAccountId());
+        data.put("dataName", dataName);
+        data.put("deleteEntry", deleteEntry);
+        if (!deleteEntry) {
+            data.put("valueEncoding", valueEncoding);
+            data.put("dataValueBase64", dataValueBase64);
+            data.put("dataValueUtf8", dataValueUtf8);
+        }
+
+        if (includeBalances) {
+            AccountResponse sourceAfter = client.loadAccount(sourceKey.getAccountId());
+            data.put("sourceBalancesBefore", sourceBefore);
+            data.put("sourceBalancesAfter", balancesOf(sourceAfter));
+            data.put("dataEntriesBefore", dataEntriesBefore);
+            data.put("dataEntriesAfter", dataEntriesOf(sourceAfter));
         }
 
         return data;
@@ -591,6 +685,9 @@ public final class TransactionService {
         Map<String, String> defaults = new LinkedHashMap<>();
         defaults.put("startingBalance", config.startingBalance());
         defaults.put("paymentAmount", config.paymentAmount());
+        defaults.put("manageDataName", config.manageDataName());
+        defaults.put("manageDataValue", config.manageDataValue());
+        defaults.put("manageDataEncoding", config.manageDataEncoding());
         defaults.put("mergeDestinationPublicKey", config.mergeDestinationPublicKey());
         defaults.put("assetCode", config.assetCode());
         defaults.put("trustLimit", config.trustLimit());
@@ -635,6 +732,33 @@ public final class TransactionService {
         }
 
         return balances;
+    }
+
+    private static List<Map<String, String>> dataEntriesOf(AccountResponse account) {
+        List<Map<String, String>> entries = new ArrayList<>();
+        if (account.getData() == null || account.getData().isEmpty()) {
+            return entries;
+        }
+
+        List<String> keys = new ArrayList<>(account.getData().keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            String valueBase64 = account.getData().get(key);
+            Map<String, String> item = new LinkedHashMap<>();
+            item.put("name", key);
+            item.put("valueBase64", valueBase64);
+            try {
+                byte[] valueDecoded = account.getData().getDecoded(key);
+                if (valueDecoded != null) {
+                    item.put("valueUtf8", new String(valueDecoded, StandardCharsets.UTF_8));
+                }
+            } catch (Exception ex) {
+                // Keep base64 value if decoding fails.
+            }
+            entries.add(item);
+        }
+
+        return entries;
     }
 
     private static Asset buildAsset(String assetCode, String issuerPublicKey) {
@@ -687,6 +811,17 @@ public final class TransactionService {
             return normalized;
         }
         return "sell";
+    }
+
+    private static String normalizeDataEncoding(String value) {
+        if (value == null) {
+            return "utf8";
+        }
+        String normalized = value.trim().toLowerCase();
+        if ("base64".equals(normalized)) {
+            return "base64";
+        }
+        return "utf8";
     }
 
     private static String firstNonBlank(String... values) {
