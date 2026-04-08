@@ -12,7 +12,12 @@ import org.springframework.stereotype.Component;
 import org.stellar.sdk.Network;
 import org.stellar.sdk.Server;
 import org.stellar.sdk.Transaction;
+import org.stellar.sdk.exception.AccountNotFoundException;
+import org.stellar.sdk.exception.BadRequestException;
+import org.stellar.sdk.exception.BadResponseException;
+import org.stellar.sdk.exception.NetworkException;
 import org.stellar.sdk.responses.AccountResponse;
+import org.stellar.sdk.responses.Problem;
 import org.stellar.sdk.responses.TransactionResponse;
 
 @Component
@@ -37,6 +42,11 @@ public final class StellarQuestClient {
         try {
             // AccountResponse is also a TransactionBuilderAccount and includes balances for verbose output.
             return server.accounts().account(accountId);
+        } catch (AccountNotFoundException ex) {
+            throw new IOException("Account not found on the current network: " + accountId, ex);
+        } catch (NetworkException ex) {
+            String status = ex.getCode() == null ? "unknown" : String.valueOf(ex.getCode());
+            throw new IOException("Failed to load account: " + accountId + " (HTTP " + status + ").", ex);
         } catch (Exception ex) {
             if (ex instanceof IOException) {
                 throw (IOException) ex;
@@ -48,6 +58,13 @@ public final class StellarQuestClient {
     public TransactionResponse submitTransaction(Transaction transaction) throws IOException {
         try {
             return server.submitTransaction(transaction);
+        } catch (BadRequestException ex) {
+            throw new IOException(problemMessage("Transaction rejected by Horizon", ex.getProblem(), ex), ex);
+        } catch (BadResponseException ex) {
+            throw new IOException(problemMessage("Unexpected Horizon response", ex.getProblem(), ex), ex);
+        } catch (NetworkException ex) {
+            String status = ex.getCode() == null ? "unknown" : String.valueOf(ex.getCode());
+            throw new IOException("Failed to submit transaction (HTTP " + status + ").", ex);
         } catch (Exception ex) {
             if (ex instanceof IOException) {
                 throw (IOException) ex;
@@ -89,5 +106,29 @@ public final class StellarQuestClient {
 
     public int timeoutSeconds() {
         return timeoutSeconds;
+    }
+
+    private static String problemMessage(String prefix, Problem problem, NetworkException ex) {
+        StringBuilder message = new StringBuilder(prefix);
+
+        if (problem != null && problem.getDetail() != null && !problem.getDetail().isBlank()) {
+            message.append(". ").append(problem.getDetail().trim());
+        }
+
+        if (problem != null && problem.getExtras() != null && problem.getExtras().getResultCodes() != null) {
+            Problem.Extras.ResultCodes resultCodes = problem.getExtras().getResultCodes();
+            if (resultCodes.getTransactionResultCode() != null && !resultCodes.getTransactionResultCode().isBlank()) {
+                message.append(" tx=").append(resultCodes.getTransactionResultCode());
+            }
+            if (resultCodes.getOperationsResultCodes() != null && !resultCodes.getOperationsResultCodes().isEmpty()) {
+                message.append(" ops=").append(resultCodes.getOperationsResultCodes());
+            }
+        }
+
+        if (ex != null && ex.getCode() != null) {
+            message.append(" (HTTP ").append(ex.getCode()).append(")");
+        }
+
+        return message.toString();
     }
 }

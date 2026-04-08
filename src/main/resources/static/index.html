@@ -72,6 +72,29 @@
       </article>
 
       <article class="card">
+        <h2>Account Merge</h2>
+        <form id="accountMergeForm" class="stacked-form">
+          <label>
+            Quest Secret (optional if `QUEST_SECRET` is set)
+            <input type="password" name="questSecret" placeholder="S...">
+          </label>
+          <label>
+            Destination Public Key (leave blank to generate)
+            <input type="text" name="destinationPublicKey" placeholder="G...">
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="autoFundDestination" checked>
+            Auto-fund destination on testnet (if needed)
+          </label>
+          <label class="toggle">
+            <input type="checkbox" name="includeBalances" checked>
+            Include balances
+          </label>
+          <button type="submit">Merge And Delete Account</button>
+        </form>
+      </article>
+
+      <article class="card">
         <h2>Trustline</h2>
         <form id="trustlineForm" class="stacked-form">
           <label>

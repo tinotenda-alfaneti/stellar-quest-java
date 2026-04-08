@@ -108,6 +108,7 @@ async function loadConfig() {
     const defaults = data.defaults || {};
     const createBalance = document.querySelector('#createAccountForm input[name="startingBalance"]');
     const paymentAmount = document.querySelector('#paymentForm input[name="paymentAmount"]');
+    const mergeDestination = document.querySelector('#accountMergeForm input[name="destinationPublicKey"]');
     const trustAsset = document.querySelector('#trustlineForm input[name="assetCode"]');
     const trustLimit = document.querySelector('#trustlineForm input[name="trustLimit"]');
     const offerType = document.querySelector('#offerForm select[name="offerType"]');
@@ -124,6 +125,7 @@ async function loadConfig() {
 
     if (createBalance && defaults.startingBalance) createBalance.value = defaults.startingBalance;
     if (paymentAmount && defaults.paymentAmount) paymentAmount.value = defaults.paymentAmount;
+    if (mergeDestination && defaults.mergeDestinationPublicKey) mergeDestination.value = defaults.mergeDestinationPublicKey;
     if (trustAsset && defaults.assetCode) trustAsset.value = defaults.assetCode;
     if (trustLimit && defaults.trustLimit) trustLimit.value = defaults.trustLimit;
     if (offerType && defaults.offerType) offerType.value = defaults.offerType;
@@ -149,6 +151,7 @@ clearConsoleBtn.addEventListener('click', () => {
 
 bindPostForm('createAccountForm', '/api/transactions/create-account', 'Create account transaction');
 bindPostForm('paymentForm', '/api/transactions/payment', 'Payment transaction');
+bindPostForm('accountMergeForm', '/api/transactions/account-merge', 'Account merge transaction');
 bindPostForm('trustlineForm', '/api/transactions/trustline', 'Trustline transaction');
 bindPostForm('offerForm', '/api/transactions/offer', 'Offer transaction');
 bindPostForm('pathPaymentForm', '/api/transactions/path-payment', 'Path payment transaction');

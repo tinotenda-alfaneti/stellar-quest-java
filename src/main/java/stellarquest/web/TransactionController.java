@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import stellarquest.web.dto.AccountMergeRequest;
 import stellarquest.web.dto.CreateAccountRequest;
 import stellarquest.web.dto.FundRequest;
 import stellarquest.web.dto.OfferRequest;
@@ -55,6 +56,12 @@ public final class TransactionController {
     public ResponseEntity<Map<String, Object>> payment(@RequestBody(required = false) PaymentRequest request)
             throws IOException {
         return ok("Payment transaction submitted.", transactionService.payment(request));
+    }
+
+    @PostMapping("/transactions/account-merge")
+    public ResponseEntity<Map<String, Object>> accountMerge(@RequestBody(required = false) AccountMergeRequest request)
+            throws IOException {
+        return ok("Account merge transaction submitted.", transactionService.accountMerge(request));
     }
 
     @PostMapping("/transactions/trustline")

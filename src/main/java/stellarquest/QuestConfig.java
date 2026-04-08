@@ -49,6 +49,9 @@ public final class QuestConfig {
     @Value("${PAYMENT_DESTINATION_PUBLIC_KEY:}")
     private String paymentDestinationPublicKey;
 
+    @Value("${MERGE_DESTINATION_PUBLIC_KEY:}")
+    private String mergeDestinationPublicKey;
+
     @Value("${ISSUER_PUBLIC_KEY:}")
     private String issuerPublicKey;
 
@@ -150,6 +153,10 @@ public final class QuestConfig {
 
     public String paymentDestinationPublicKey() {
         return paymentDestinationPublicKey;
+    }
+
+    public String mergeDestinationPublicKey() {
+        return mergeDestinationPublicKey;
     }
 
     public String issuerPublicKey() {

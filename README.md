@@ -34,6 +34,7 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 
 - Create account
 - Send payment
+- Merge account (delete source account and transfer all XLM)
 - Create trustline
 - Create offer (buy/sell/passive)
 - Run strict-send path payment
@@ -46,6 +47,7 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 - `POST /api/transactions/fund`
 - `POST /api/transactions/create-account`
 - `POST /api/transactions/payment`
+- `POST /api/transactions/account-merge`
 - `POST /api/transactions/trustline`
 - `POST /api/transactions/offer`
 - `POST /api/transactions/path-payment`
@@ -74,6 +76,7 @@ All endpoints return a JSON envelope:
 - `TIMEOUT_SECONDS`
 - `DESTINATION_PUBLIC_KEY` (optional default destination)
 - `PAYMENT_DESTINATION_PUBLIC_KEY` (optional default payment destination)
+- `MERGE_DESTINATION_PUBLIC_KEY` (optional default account-merge destination)
 - `ISSUER_PUBLIC_KEY` (optional default issuer)
 - `OFFER_TYPE` (default: `buy`, options: `buy|sell|passive`)
 - `OFFER_ASSET_CODE` (default: `USDC`)
@@ -90,4 +93,5 @@ All endpoints return a JSON envelope:
 ## Notes
 
 - Friendbot actions only make sense on testnet.
+- Account merge requires `subentry_count = 0` on the source account (no trustlines, offers, extra signers, or data entries).
 - The old CLI quest classes still exist in the codebase, but startup now runs as web-only.

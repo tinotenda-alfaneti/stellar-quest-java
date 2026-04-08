@@ -18,6 +18,7 @@ import org.stellar.sdk.Network;
 import org.stellar.sdk.Price;
 import org.stellar.sdk.Transaction;
 import org.stellar.sdk.TransactionBuilder;
+import org.stellar.sdk.operations.AccountMergeOperation;
 import org.stellar.sdk.operations.ChangeTrustOperation;
 import org.stellar.sdk.operations.CreateAccountOperation;
 import org.stellar.sdk.operations.CreatePassiveSellOfferOperation;
@@ -30,6 +31,7 @@ import org.stellar.sdk.responses.TransactionResponse;
 
 import stellarquest.QuestConfig;
 import stellarquest.StellarQuestClient;
+import stellarquest.web.dto.AccountMergeRequest;
 import stellarquest.web.dto.CreateAccountRequest;
 import stellarquest.web.dto.FundRequest;
 import stellarquest.web.dto.OfferRequest;
@@ -221,6 +223,93 @@ public final class TransactionService {
             data.put("destinationBalancesBefore", destinationBefore);
             data.put("sourceBalancesAfter", balancesOf(client.loadAccount(sourceKey.getAccountId())));
             data.put("destinationBalancesAfter", balancesOf(client.loadAccount(destination)));
+        }
+
+        return data;
+    }
+
+    public Map<String, Object> accountMerge(AccountMergeRequest request) throws IOException {
+        AccountMergeRequest safe = request == null ? new AccountMergeRequest() : request;
+
+        String secret = resolveQuestSecret(safe.getQuestSecret());
+        KeyPair sourceKey = KeyPair.fromSecretSeed(secret);
+        KeyPair generatedDestination = KeyPair.random();
+
+        String destination = firstNonBlank(
+                safe.getDestinationPublicKey(),
+                config.mergeDestinationPublicKey(),
+                config.paymentDestinationPublicKey(),
+                config.destinationPublicKey());
+
+        boolean generated = false;
+        if (isBlank(destination)) {
+            destination = generatedDestination.getAccountId();
+            generated = true;
+        }
+
+        if (sourceKey.getAccountId().equals(destination)) {
+            throw new IllegalArgumentException("destinationPublicKey must be different from the source account.");
+        }
+
+        boolean includeBalances = boolOrDefault(safe.getIncludeBalances(), true);
+        boolean autoFundDestination = boolOrDefault(safe.getAutoFundDestination(), true);
+
+        String friendbotResponse = null;
+        if (autoFundDestination && Network.TESTNET.equals(client.network()) && (generated || !accountExists(destination))) {
+            friendbotResponse = client.fundWithFriendbot(destination);
+        }
+
+        if (!accountExists(sourceKey.getAccountId())) {
+            throw new IllegalArgumentException(
+                    "Source account was not found. It may already be merged/deleted; fund it again on testnet or use a different questSecret.");
+        }
+        AccountResponse sourceAccount = client.loadAccount(sourceKey.getAccountId());
+        if (sourceAccount.getSubentryCount() != null && sourceAccount.getSubentryCount() > 0) {
+            throw new IllegalArgumentException(
+                    "Source account has subentries (" + sourceAccount.getSubentryCount()
+                            + "). Remove trustlines, offers, extra signers, and data entries before merging.");
+        }
+        if (!accountExists(destination)) {
+            throw new IllegalArgumentException(
+                    "destinationPublicKey account was not found. Provide an existing account or enable autoFundDestination on testnet.");
+        }
+
+        List<Map<String, String>> sourceBefore = null;
+        List<Map<String, String>> destinationBefore = null;
+        if (includeBalances) {
+            sourceBefore = balancesOf(sourceAccount);
+            destinationBefore = loadBalancesOrEmpty(destination);
+        }
+
+        Transaction transaction = new TransactionBuilder(sourceAccount, client.network())
+                .setBaseFee(client.baseFee())
+                .addOperation(AccountMergeOperation.builder()
+                        .destination(destination)
+                        .build())
+                .setTimeout(client.timeoutSeconds())
+                .build();
+
+        transaction.sign(sourceKey);
+        TransactionResponse tx = client.submitTransaction(transaction);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("action", "account-merge");
+        data.put("hash", tx.getHash());
+        data.put("sourceAccount", sourceKey.getAccountId());
+        data.put("destinationPublicKey", destination);
+        data.put("generatedDestination", generated);
+        if (generated) {
+            data.put("destinationSecretKey", new String(generatedDestination.getSecretSeed()));
+        }
+        if (friendbotResponse != null) {
+            data.put("friendbotResponse", friendbotResponse);
+        }
+
+        if (includeBalances) {
+            data.put("sourceBalancesBefore", sourceBefore);
+            data.put("destinationBalancesBefore", destinationBefore);
+            data.put("sourceAccountExistsAfter", accountExists(sourceKey.getAccountId()));
+            data.put("destinationBalancesAfter", loadBalancesOrEmpty(destination));
         }
 
         return data;
@@ -502,6 +591,7 @@ public final class TransactionService {
         Map<String, String> defaults = new LinkedHashMap<>();
         defaults.put("startingBalance", config.startingBalance());
         defaults.put("paymentAmount", config.paymentAmount());
+        defaults.put("mergeDestinationPublicKey", config.mergeDestinationPublicKey());
         defaults.put("assetCode", config.assetCode());
         defaults.put("trustLimit", config.trustLimit());
         defaults.put("offerType", config.offerType());
@@ -579,6 +669,15 @@ public final class TransactionService {
         }
     }
 
+    private boolean accountExists(String accountId) {
+        try {
+            client.loadAccount(accountId);
+            return true;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
     private static String normalizeOfferType(String value) {
         if (value == null) {
             return "sell";
@@ -590,12 +689,14 @@ public final class TransactionService {
         return "sell";
     }
 
-    private static String firstNonBlank(String first, String second) {
-        if (!isBlank(first)) {
-            return first.trim();
+    private static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
         }
-        if (!isBlank(second)) {
-            return second.trim();
+        for (String value : values) {
+            if (!isBlank(value)) {
+                return value.trim();
+            }
         }
         return null;
     }
